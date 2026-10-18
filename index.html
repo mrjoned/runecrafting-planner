@@ -34,6 +34,23 @@
     #runecrafting-planner .rcp-small { font-size:.8rem; color:var(--rcp-muted); }
     #runecrafting-planner .rcp-enchant-row { display:grid; grid-template-columns:minmax(0,1fr) 84px 34px; gap:8px; align-items:end; margin:10px 0; }
     #runecrafting-planner .rcp-enchant-row .rcp-field { min-width:0; }
+    #runecrafting-planner .rcp-enchant-wrap { margin:10px 0; }
+    #runecrafting-planner .rcp-enchant-wrap .rcp-enchant-row { margin:0; }
+    #runecrafting-planner .rcp-select-with-info { display:flex; align-items:center; gap:8px; }
+    #runecrafting-planner .rcp-select-with-info select { min-width:0; flex:1; }
+    #runecrafting-planner .rcp-info-toggle { flex:0 0 42px; width:42px; min-height:42px; border:1px solid #7486a5; border-radius:9px; background:#26354c; color:#f1f5ff; font-size:1.12rem; font-weight:700; cursor:pointer; }
+    #runecrafting-planner .rcp-info-toggle[aria-expanded="true"] { background:#453478; border-color:#b7a4ff; }
+    #runecrafting-planner .rcp-info-toggle:focus-visible { outline:3px solid #c4b5fd; outline-offset:2px; }
+    #runecrafting-planner .rcp-description { background:#182334; border:1px solid #40526b; border-radius:9px; padding:12px 14px; margin-top:9px; font-size:.9rem; line-height:1.55; overflow-wrap:anywhere; }
+    #runecrafting-planner .rcp-description-title { color:#c4b5fd; font-weight:700; margin-bottom:6px; }
+    #runecrafting-planner .rcp-description-body { white-space:pre-wrap; }
+    #runecrafting-planner .rcp-incompatibility { border-top:1px solid #40526b; margin-top:12px; padding-top:10px; }
+    #runecrafting-planner .rcp-incompatibility-heading { font-weight:700; color:#e2d7ff; margin-bottom:8px; font-size:.86rem; }
+    #runecrafting-planner .rcp-incompatibility-subheading { color:#c6d4e8; font-size:.82rem; font-weight:650; margin:10px 0 6px; }
+    #runecrafting-planner .rcp-incompatibility-list { display:flex; flex-wrap:wrap; gap:6px; }
+    #runecrafting-planner .rcp-incompatibility-tag { display:inline-block; border:1px solid #725a84; background:#34293e; color:#f4e9ff; border-radius:6px; padding:4px 8px; font-size:.82rem; line-height:1.35; overflow-wrap:anywhere; }
+    #runecrafting-planner .rcp-incompatibility-none { color:#b6c3d6; font-size:.82rem; }
+
     #runecrafting-planner .rcp-remove { border:1px solid var(--rcp-line); background:#374151; color:white; border-radius:8px; height:40px; cursor:pointer; font-size:1.1rem; }
     #runecrafting-planner .rcp-add-enchant { margin-top:8px; }
     #runecrafting-planner .rcp-summary { margin-top:22px; background:#171f2e; border:1px solid var(--rcp-line); border-radius:12px; padding:16px; }
@@ -61,6 +78,7 @@
       #runecrafting-planner .rcp-enchant-row > .rcp-field:first-child { grid-area:enchant; }
       #runecrafting-planner .rcp-enchant-row > .rcp-field:nth-child(2) { grid-area:level; }
       #runecrafting-planner .rcp-enchant-row > .rcp-remove { grid-area:remove; width:44px; height:44px; }
+      #runecrafting-planner .rcp-info-toggle { flex-basis:44px; width:44px; min-height:44px; }
       #runecrafting-planner select, #runecrafting-planner input { font-size:16px; min-height:44px; }
       #runecrafting-planner .rcp-button { min-height:44px; }
       #runecrafting-planner .rcp-summary { padding:12px; }
@@ -70,6 +88,28 @@
     }
     @media (max-width:340px) {
       #runecrafting-planner .rcp-runes { grid-template-columns:minmax(0,1fr); }
+    }
+
+    #runecrafting-planner .rcp-review-actions { display:flex; gap:10px; flex-wrap:wrap; margin:18px 0 4px; }
+    #runecrafting-planner .rcp-build-review { margin-top:16px; padding:18px; background:#171f2e; border:1px solid var(--rcp-line); border-radius:12px; }
+    #runecrafting-planner .rcp-build-review[hidden] { display:none; }
+    #runecrafting-planner .rcp-build-review-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; }
+    #runecrafting-planner .rcp-build-review-head h3 { margin:0; }
+    #runecrafting-planner .rcp-review-gear { margin:12px 0; padding:14px; border:1px solid #40526b; background:#222d40; border-radius:10px; }
+    #runecrafting-planner .rcp-review-gear h4 { margin:0 0 10px; color:#f5f7fc; }
+    #runecrafting-planner .rcp-review-enchant { padding:11px 0; border-top:1px solid #41516a; }
+    #runecrafting-planner .rcp-review-enchant:first-of-type { border-top:0; }
+    #runecrafting-planner .rcp-review-enchant-title { font-weight:700; color:#f4f5ff; }
+    #runecrafting-planner .rcp-review-description { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.9rem; line-height:1.55; margin-top:7px; color:#dce5f4; }
+    #runecrafting-planner .rcp-review-runes { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    #runecrafting-planner .rcp-review-rune { border:1px solid #455675; border-radius:7px; padding:7px 10px; background:#26354a; font-size:.87rem; }
+    #runecrafting-planner .rcp-review-rune strong { color:#fff; }
+    #runecrafting-planner .rcp-review-subtitle { margin:18px 0 6px; }
+    @media (max-width:600px) {
+      #runecrafting-planner .rcp-review-actions .rcp-button { width:100%; min-height:44px; }
+      #runecrafting-planner .rcp-build-review { padding:12px; }
+      #runecrafting-planner .rcp-build-review-head { align-items:flex-start; flex-direction:column; }
+      #runecrafting-planner .rcp-build-review-head .rcp-button { min-height:44px; }
     }
   </style>
   <div class="rcp-shell">
@@ -88,6 +128,11 @@
       <button class="rcp-button" type="button" id="rcp-add-item">+ Add equipment</button>
     </div>
     <div id="rcp-items" class="rcp-items"></div>
+    <div class="rcp-review-actions"><button type="button" class="rcp-button" id="rcp-open-review" aria-expanded="false" aria-controls="rcp-build-review">View Build Summary</button></div>
+    <section class="rcp-build-review" id="rcp-build-review" aria-label="Build summary" hidden>
+      <div class="rcp-build-review-head"><div><h3>Build Summary</h3><p class="rcp-muted">Your complete equipment setup, enchantment effects, and rune requirements.</p></div><button type="button" class="rcp-button secondary" id="rcp-close-review">Back to Planner</button></div>
+      <div id="rcp-review-content"></div>
+    </section>
     <section class="rcp-summary" aria-live="polite">
       <h3>Rune shopping list</h3>
       <p class="rcp-muted" id="rcp-summary-note">Your totals update as you change your build.</p>
@@ -110,9 +155,28 @@
   const runeNames = ['Aegis','Arcanum','Chills','Cinders','Echoes','Gusts','Kinesis','Moments','Mortus','Opulence','Sparks','Stones','Tides','Vitality','Void'];
   const state = { items: [], nextId: 1 };
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const formatDescription = value => esc(value || 'No description available yet.')
+    .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
   const makeOptions = (list, selected, placeholder) =>
     (placeholder ? `<option value="">${esc(placeholder)}</option>` : '') +
     list.map(v => `<option value="${esc(v)}" ${String(v)===String(selected)?'selected':''}>${esc(v)}</option>`).join('');
+  // Equipment categories apply to both Add Equipment and Change Equipment.
+  // Items not yet categorized in this version appear in Other Equipment.
+  const equipmentGroups = [
+    ['Armor', ['Helmets','Chestplates','Leggings','Boots','Elytra','Shields']],
+    ['Weapons', ['Swords','Axes','Spears','Maces','Tridents','Bows','Crossbows']],
+    ['Tools', ['Pickaxes','Shovels','Hoes','Fishing Rods','Shears','Flint and Steel','Spyglass','Goat Horns']]
+  ];
+  const makeEquipmentOptions = (items, selected) => {
+    const known = new Set();
+    const html = equipmentGroups.map(([label, types]) => {
+      const available = types.filter(type => items.includes(type));
+      available.forEach(type => known.add(type));
+      return available.length ? `<optgroup label="${esc(label)}">${makeOptions(available,selected)}</optgroup>` : '';
+    }).join('');
+    const other = items.filter(type => !known.has(type));
+    return html + (other.length ? `<optgroup label="Other Equipment">${makeOptions(other,selected)}</optgroup>` : '');
+  };
   // Group the native dropdown by the Category field, while preserving the original enchantment name as its value.
   const categoryName = e => (e?.category || '').trim() || 'Uncategorized';
   const makeEnchantOptions = (list, selected) => {
@@ -143,6 +207,31 @@
       rule.trim().toLowerCase() === other.name.trim().toLowerCase() || groupConflict(rule,other));
     return listed(a,b) || listed(b,a);
   };
+  // Display direct incompatibility rules even when the other enchantment is
+  // vanilla and not included as a selectable entry in the Airtable catalog.
+  const vanillaNames = new Set(['silk touch','fortune','efficiency','unbreaking','mending','infinity','power','punch','flame','looting','sharpness','smite','bane of arthropods','fire aspect','knockback','sweeping edge','protection','fire protection','blast protection','projectile protection','feather falling','respiration','aqua affinity','depth strider','frost walker','soul speed','swift sneak','thorns','binding curse','vanishing curse','curse of binding','curse of vanishing','riptide','loyalty','channeling','impaling','multishot','piercing','quick charge','luck of the sea','lure','density','breach','wind burst']);
+  const vanillaBase = name => name.toLowerCase().replace(/\s+[ivxlcdm]+$/i,'').trim();
+  const incompatibleNamesFor = e => {
+    const resolved = DATA.enchantments.filter(other => other.name !== e.name &&
+      other.items.some(type => e.items.includes(type)) && namesConflict(e,other)).map(other => other.name);
+    const direct = (e.incompatible || []).filter(rule => !/^other\s+/i.test(rule.trim()))
+      .map(rule => rule.trim()).filter(Boolean);
+    // Some API versions combine Incompatible (Runecrafted) and Incompatible
+    // (Vanilla) into one array; handle either format without dropping names.
+    const extraVanilla = e.incompatibleVanilla || e.incompatibleWithVanilla || [];
+    const all = [...resolved, ...direct, ...(Array.isArray(extraVanilla) ? extraVanilla : [])];
+    return [...new Map(all.map(name => [name.toLowerCase(),name])).values()].sort((a,b)=>a.localeCompare(b));
+  };
+  const incompatibilityMarkup = e => {
+    const names = incompatibleNamesFor(e);
+    const vanilla = names.filter(name => vanillaNames.has(vanillaBase(name)));
+    const other = names.filter(name => !vanillaNames.has(vanillaBase(name)));
+    const tags = arr => `<div class="rcp-incompatibility-list">${arr.map(name=>`<span class="rcp-incompatibility-tag">${esc(name)}</span>`).join('')}</div>`;
+    return `<div class="rcp-incompatibility"><div class="rcp-incompatibility-heading">Incompatibilities</div>${
+      names.length ? `${other.length ? `<div class="rcp-incompatibility-subheading">Runecrafted</div>${tags(other)}` : ''}${vanilla.length ? `<div class="rcp-incompatibility-subheading">Vanilla</div>${tags(vanilla)}` : ''}` :
+      `<div class="rcp-incompatibility-none">No known enchantment conflicts.</div>`
+    }</div>`;
+  };
   const canSelect = (item, candidate, skipIndex = -1) =>
     !item.enchants.some((entry,index) => index !== skipIndex && entry.name && namesConflict(candidate,enchantByName.get(entry.name.toLowerCase())));
   const suggestions = (item, skipIndex = -1) => getEnchantments(item.type).filter(e => canSelect(item,e,skipIndex));
@@ -163,7 +252,7 @@
     render();
   }
   function render() {
-    $('rcp-new-type').innerHTML = makeOptions(DATA.items, $('rcp-new-type').value || DATA.items[0]);
+    $('rcp-new-type').innerHTML = makeEquipmentOptions(DATA.items, $('rcp-new-type').value || DATA.items[0]);
     const container = $('rcp-items');
     if (!state.items.length) {
       container.innerHTML = '<p class="rcp-empty">No equipment added yet. Choose an equipment type above and click “Add equipment”.</p>';
@@ -175,23 +264,57 @@
           const max = e ? maxFor(e) : 1;
           const levels = Array.from({length:max},(_,k)=>k+1);
           const costLabel = e && e.costMode === 'free' ? 'No rune cost' : 'Rune cost';
-          const levelControl = !e ? '' : isLevelled(e) ? `<div class="rcp-field"><label>Level</label><select data-action="level" data-item="${item.id}" data-index="${j}">${makeOptions(levels,entry.level)}</select></div>` : (hasFixedRomanLevel(e) || e.source === "Mythical") ? `<div class="rcp-field"><label>Level</label><div class="rcp-small" style="padding:10px 0">${hasFixedRomanLevel(e) ? "Fixed level " + esc(e.name.match(/([IVXLCDM]+)$/)[1]) : "Standalone"}</div></div>` : "";
-          return `<div class="rcp-enchant-row">
-            <div class="rcp-field"><label>Enchantment</label><select data-action="enchant" data-item="${item.id}" data-index="${j}">${makeEnchantOptions(suggestions(item,j),entry.name)}</select>${e ? `<div class="rcp-small">Category: ${esc(categoryName(e))} · ${esc(costLabel)}</div>` : `<div class="rcp-small">Choose an enchantment to see its category and rune cost.</div>`}</div>
+          const levelControl = !e ? '' : isLevelled(e) ? `<div class="rcp-field"><label>Level</label><select data-action="level" data-item="${item.id}" data-index="${j}">${makeOptions(levels,entry.level)}</select></div>` : (hasFixedRomanLevel(e) || e.source === "Mythical") ? `<div class="rcp-field"><label>Level</label><div class="rcp-small" style="padding:10px 0">${hasFixedRomanLevel(e) ? "Upgrade to " + esc(e.name.match(/([IVXLCDM]+)$/)[1]) : "Standalone"}</div></div>` : "";
+          const descriptionId = `rcp-desc-${item.id}-${j}`;
+          return `<div class="rcp-enchant-wrap"><div class="rcp-enchant-row">
+            <div class="rcp-field"><label>Enchantment</label><div class="rcp-select-with-info"><select data-action="enchant" data-item="${item.id}" data-index="${j}">${makeEnchantOptions(suggestions(item,j),entry.name)}</select>${e ? `<button type="button" class="rcp-info-toggle" data-action="toggle-description" data-item="${item.id}" data-index="${j}" aria-label="${entry.showDescription ? 'Hide' : 'Show'} description for ${esc(e.name)}" title="${entry.showDescription ? 'Hide' : 'Show'} enchantment description" aria-expanded="${!!entry.showDescription}" aria-controls="${descriptionId}">ⓘ</button>` : ''}</div>${e ? `<div class="rcp-small">Category: ${esc(categoryName(e))} · ${esc(costLabel)}</div>` : `<div class="rcp-small">Choose an enchantment to see its category and rune cost.</div>`}</div>
             ${levelControl}
             <button type="button" class="rcp-remove" aria-label="Remove enchantment" title="Remove enchantment" data-action="remove-enchant" data-item="${item.id}" data-index="${j}">×</button>
-          </div>`;
+          </div>${e && entry.showDescription ? `<div class="rcp-description" id="${descriptionId}" role="region" aria-label="Description of ${esc(e.name)}"><div class="rcp-description-title">${esc(e.name)} — Description</div><div class="rcp-description-body">${formatDescription(e.description)}</div>${incompatibilityMarkup(e)}</div>` : ''}</div>`;
         }).join('');
         return `<article class="rcp-item">
           <div class="rcp-item-head"><h3>${esc(item.type)}</h3><div class="rcp-head-actions"><button type="button" class="rcp-button secondary" data-action="toggle-type" data-item="${item.id}" aria-expanded="${!!item.editingType}">${item.editingType ? 'Cancel' : 'Change'}</button><button type="button" class="rcp-button danger" data-action="remove-item" data-item="${item.id}">Remove</button></div></div>
-          ${item.editingType ? `<div class="rcp-change-panel"><label for="rcp-change-${item.id}">Change equipment type</label><select id="rcp-change-${item.id}" data-action="type" data-item="${item.id}">${makeOptions(DATA.items,item.type)}</select><p class="rcp-small">Changing equipment type clears enchantments on this piece.</p></div>` : ''}
+          ${item.editingType ? `<div class="rcp-change-panel"><label for="rcp-change-${item.id}">Change equipment type</label><select id="rcp-change-${item.id}" data-action="type" data-item="${item.id}">${makeEquipmentOptions(DATA.items,item.type)}</select><p class="rcp-small">Changing equipment type clears enchantments on this piece.</p></div>` : ''}
           ${rows || '<p class="rcp-empty">No enchantments selected yet.</p>'}
           <button type="button" class="rcp-button secondary rcp-add-enchant" data-action="add-enchant" data-item="${item.id}" ${available.length===0?'disabled':''}>+ Add enchantment</button>
         </article>`;
       }).join('');
     }
     renderTotals();
+    if (state.reviewOpen) renderReview();
   }
+  function runeMultiplier(e, entry) { return hasFixedRomanLevel(e) ? 1 : (Number(entry.level) || 1); }
+  function buildRuneTotals() {
+    const totals=Object.fromEntries(runeNames.map(r=>[r,0]));
+    state.items.forEach(item=>item.enchants.forEach(entry=>{
+      const e=DATA.enchantments.find(x=>x.name===entry.name);
+      if (e && e.costMode!=='free') e.runes.forEach(r=>totals[r]=(totals[r]||0)+runeMultiplier(e,entry));
+    }));
+    return totals;
+  }
+  function renderReview() {
+    const selected=state.items.reduce((n,item)=>n+item.enchants.filter(entry=>DATA.enchantments.some(e=>e.name===entry.name)).length,0);
+    const equipment=state.items.map(item=>{
+      const enchants=item.enchants.map(entry=>({entry,e:DATA.enchantments.find(e=>e.name===entry.name)})).filter(x=>x.e);
+      return `<article class="rcp-review-gear"><h4>${esc(item.type)}</h4>${enchants.length?enchants.map(({entry,e})=>{
+        const suffix=hasFixedRomanLevel(e)||e.source==='Mythical'?'':` ${entry.level>1?'Level '+entry.level:'Level I'}`;
+        return `<div class="rcp-review-enchant"><div class="rcp-review-enchant-title">${esc(e.name)}${esc(suffix)}</div><div class="rcp-small">${esc(categoryName(e))} · ${e.costMode==='free'?'No rune cost':'Runecrafted'}</div><div class="rcp-review-description">${formatDescription(e.description)}</div>${incompatibilityMarkup(e)}</div>`;
+      }).join(''):'<p class="rcp-muted">No enchantments selected for this equipment.</p>'}</article>`;
+    }).join('');
+    const totals=buildRuneTotals();
+    const used=runeNames.filter(r=>totals[r]>0);
+    $('rcp-review-content').innerHTML=state.items.length?`<p class="rcp-muted">${state.items.length} piece(s) of equipment · ${selected} enchantment(s)</p>${equipment}<h4 class="rcp-review-subtitle">Total Rune Requirements</h4>${used.length?`<div class="rcp-review-runes">${used.map(r=>`<span class="rcp-review-rune">${esc(r)}: <strong>${totals[r]}</strong></span>`).join('')}</div>`:'<p class="rcp-muted">No runes required for the selected enchantments.</p>'}`:'<p class="rcp-empty">Add equipment and enchantments to see your build summary.</p>';
+  }
+  function setReviewOpen(open) {
+    state.reviewOpen=open;
+    $('rcp-build-review').hidden=!open;
+    $('rcp-open-review').setAttribute('aria-expanded',String(open));
+    $('rcp-open-review').textContent=open?'Hide Build Summary':'View Build Summary';
+    if(open){renderReview();$('rcp-build-review').scrollIntoView({behavior:'smooth',block:'start'});}
+    else {$('rcp-open-review').scrollIntoView({behavior:'smooth',block:'nearest'});}
+  }
+  $('rcp-open-review').addEventListener('click',()=>setReviewOpen(!state.reviewOpen));
+  $('rcp-close-review').addEventListener('click',()=>setReviewOpen(false));
   function renderTotals() {
     const totals = Object.fromEntries(runeNames.map(r=>[r,0]));
     let chosenCount = 0, freeCount = 0;
@@ -200,7 +323,7 @@
       if (!e) return;
       chosenCount++;
       if (e.costMode === 'free') { freeCount++; return; }
-      e.runes.forEach(r => { totals[r] = (totals[r] || 0) + entry.level; });
+      e.runes.forEach(r => { totals[r] = (totals[r] || 0) + runeMultiplier(e,entry); });
     }));
     $('rcp-summary-note').textContent = `${state.items.length} piece(s) of equipment · ${chosenCount} enchantment(s) selected · ${freeCount} with no rune cost`;
     const used = runeNames.filter(r=>totals[r]>0);
@@ -216,7 +339,7 @@
       if (el.value !== item.type) { item.type=el.value; item.enchants=[]; } item.editingType=false; render();
     } else if (action==='enchant') {
       const entry=item.enchants[Number(el.dataset.index)];
-      if (entry && (el.value === '' || suggestions(item,Number(el.dataset.index)).some(e=>e.name===el.value))) { entry.name=el.value; entry.level=1; render(); }
+      if (entry && (el.value === '' || suggestions(item,Number(el.dataset.index)).some(e=>e.name===el.value))) { entry.name=el.value; entry.level=1; entry.showDescription=false; render(); }
     } else if (action==='level') {
       const entry=item.enchants[Number(el.dataset.index)];
       if (entry) { entry.level=Number(el.value); render(); }
@@ -230,6 +353,7 @@
     if (action==='toggle-type' && item) { item.editingType=!item.editingType; render(); }
     if (action==='remove-item') { state.items=state.items.filter(i=>i.id!==itemId); render(); }
     if (action==='add-enchant') addEnchant(itemId);
+    if (action==='toggle-description' && item) { const entry=item.enchants[idx]; if (entry && entry.name) { entry.showDescription=!entry.showDescription; render(); } }
     if (action==='remove-enchant' && item) { item.enchants.splice(idx,1); render(); }
   });
   $('rcp-copy').addEventListener('click',()=>{
@@ -239,7 +363,7 @@
       const e=DATA.enchantments.find(x=>x.name===entry.name);
       if (!e) return;
       if (e.costMode === 'free') { free.push(e.name); return; }
-      e.runes.forEach(r=>totals[r]=(totals[r]||0)+entry.level);
+      e.runes.forEach(r=>totals[r]=(totals[r]||0)+runeMultiplier(e,entry));
     }));
     const lines=['Runecrafting rune shopping list',...runeNames.filter(r=>totals[r]>0).map(r=>`${r}: ${totals[r]}`)];
     if (free.length) lines.push('', 'No rune cost: ' + free.join(', '));
