@@ -226,7 +226,7 @@
     const names = incompatibleNamesFor(e);
     // Collapse a vanilla enchantment and its Roman-numeral upgrade into one
     // readable tag (e.g. Fire Aspect + Fire Aspect III).
-    const compactVanilla = entries => {
+    const compactVariants = entries => {
       const groups = new Map();
       for (const name of entries) {
         const base = name.replace(/\s+[IVXLCDM]+$/i, '').trim();
@@ -246,8 +246,10 @@
             : g.base;
       });
     };
-    const vanilla = compactVanilla(names.filter(name => vanillaNames.has(vanillaBase(name))));
-    const other = names.filter(name => !vanillaNames.has(vanillaBase(name)));
+    // Compact both lists so upgraded variants cannot appear as duplicate tags,
+    // regardless of which Airtable incompatibility field supplied them.
+    const vanilla = compactVariants(names.filter(name => vanillaNames.has(vanillaBase(name))));
+    const other = compactVariants(names.filter(name => !vanillaNames.has(vanillaBase(name))));
     const tags = arr => `<div class="rcp-incompatibility-list">${arr.map(name=>`<span class="rcp-incompatibility-tag">${esc(name)}</span>`).join('')}</div>`;
     return `<div class="rcp-incompatibility"><div class="rcp-incompatibility-heading">Incompatibilities</div>${
       names.length ? `${other.length ? `<div class="rcp-incompatibility-subheading">Runecrafted</div>${tags(other)}` : ''}${vanilla.length ? `<div class="rcp-incompatibility-subheading">Vanilla</div>${tags(vanilla)}` : ''}` :
