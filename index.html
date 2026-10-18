@@ -224,7 +224,29 @@
   };
   const incompatibilityMarkup = e => {
     const names = incompatibleNamesFor(e);
-    const vanilla = names.filter(name => vanillaNames.has(vanillaBase(name)));
+    // Collapse a vanilla enchantment and its Roman-numeral upgrade into one
+    // readable tag (e.g. Fire Aspect + Fire Aspect III).
+    const compactVanilla = entries => {
+      const groups = new Map();
+      for (const name of entries) {
+        const base = name.replace(/\s+[IVXLCDM]+$/i, '').trim();
+        const key = base.toLowerCase();
+        if (!groups.has(key)) groups.set(key, {base, levels: [], plain: false});
+        const group = groups.get(key);
+        const suffix = /\s+([IVXLCDM]+)$/i.exec(name);
+        if (suffix) group.levels.push(suffix[1]);
+        else group.plain = true;
+      }
+      return [...groups.values()].map(g => {
+        const levels = [...new Set(g.levels)];
+        return g.plain && levels.length
+          ? `${g.base} (including ${levels.join(', ')})`
+          : !g.plain && levels.length
+            ? levels.map(level => `${g.base} ${level}`).join(', ')
+            : g.base;
+      });
+    };
+    const vanilla = compactVanilla(names.filter(name => vanillaNames.has(vanillaBase(name))));
     const other = names.filter(name => !vanillaNames.has(vanillaBase(name)));
     const tags = arr => `<div class="rcp-incompatibility-list">${arr.map(name=>`<span class="rcp-incompatibility-tag">${esc(name)}</span>`).join('')}</div>`;
     return `<div class="rcp-incompatibility"><div class="rcp-incompatibility-heading">Incompatibilities</div>${
