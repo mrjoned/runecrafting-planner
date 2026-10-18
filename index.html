@@ -148,7 +148,7 @@
   const suggestions = (item, skipIndex = -1) => getEnchantments(item.type).filter(e => canSelect(item,e,skipIndex));
   const hasFixedRomanLevel = e => /\s[IVXLCDM]+$/.test(e.name);
   const maxFor = e => hasFixedRomanLevel(e) ? 1 : Number.isInteger(e.maxLevel) && e.maxLevel > 0 ? e.maxLevel : 1;
-  const isLevelled = e => !hasFixedRomanLevel(e) && e.source !== 'Mythical' && Number.isInteger(e.maxLevel) && e.maxLevel > 0;
+  const isLevelled = e => !hasFixedRomanLevel(e) && e.source !== 'Mythical' && Number.isInteger(e.maxLevel) && e.maxLevel > 1;
 
   function addItem(type) {
     state.items.push({id:state.nextId++, type:type || DATA.items[0], enchants:[], editingType:false});
@@ -175,7 +175,7 @@
           const max = e ? maxFor(e) : 1;
           const levels = Array.from({length:max},(_,k)=>k+1);
           const costLabel = e && e.costMode === 'free' ? 'No rune cost' : 'Rune cost';
-          const levelControl = !e ? '' : isLevelled(e) ? `<div class="rcp-field"><label>Level</label><select data-action="level" data-item="${item.id}" data-index="${j}">${makeOptions(levels,entry.level)}</select></div>` : `<div class="rcp-field"><label>Level</label><div class="rcp-small" style="padding:10px 0">${hasFixedRomanLevel(e) ? "Fixed level " + esc(e.name.match(/([IVXLCDM]+)$/)[1]) : "Standalone"}</div></div>`;
+          const levelControl = !e ? '' : isLevelled(e) ? `<div class="rcp-field"><label>Level</label><select data-action="level" data-item="${item.id}" data-index="${j}">${makeOptions(levels,entry.level)}</select></div>` : (hasFixedRomanLevel(e) || e.source === "Mythical") ? `<div class="rcp-field"><label>Level</label><div class="rcp-small" style="padding:10px 0">${hasFixedRomanLevel(e) ? "Fixed level " + esc(e.name.match(/([IVXLCDM]+)$/)[1]) : "Standalone"}</div></div>` : "";
           return `<div class="rcp-enchant-row">
             <div class="rcp-field"><label>Enchantment</label><select data-action="enchant" data-item="${item.id}" data-index="${j}">${makeEnchantOptions(suggestions(item,j),entry.name)}</select>${e ? `<div class="rcp-small">Category: ${esc(categoryName(e))} · ${esc(costLabel)}</div>` : `<div class="rcp-small">Choose an enchantment to see its category and rune cost.</div>`}</div>
             ${levelControl}
