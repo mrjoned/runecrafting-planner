@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Runecrafting Build Planner V14</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet"></head><body style="margin:0;padding:12px;background:#0b1020">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Runecrafting Build Planner V14</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet"></head><body style="margin:0;padding:12px;background:#000000">
 <!-- Runecrafting Build Planner — prototype generated from your CSV.
      Squarespace embed guidance will depend on whether your plan/editor allows scripts in Code Blocks. -->
 <div id="runecrafting-planner" class="rcp">
   <style>
-    #runecrafting-planner { --rcp-bg:#111827; --rcp-panel:#1f2937; --rcp-line:#374151; --rcp-text:#f9fafb; --rcp-muted:#cbd5e1; --rcp-accent:#8b5cf6; color:var(--rcp-text); font-family:"Atkinson Hyperlegible",Verdana,Arial,sans-serif; line-height:1.5; width:100%; max-width:1600px; margin:0 auto; }
+    #runecrafting-planner { --rcp-bg:#000000; --rcp-panel:#1f2937; --rcp-line:#374151; --rcp-text:#f9fafb; --rcp-muted:#cbd5e1; --rcp-accent:#8b5cf6; color:var(--rcp-text); font-family:"Atkinson Hyperlegible",Verdana,Arial,sans-serif; line-height:1.5; width:100%; max-width:1600px; margin:0 auto; }
     #runecrafting-planner * { box-sizing:border-box; }
     #runecrafting-planner .rcp-shell { background:var(--rcp-bg); border:1px solid var(--rcp-line); border-radius:16px; padding:clamp(14px,3vw,26px); }
     #runecrafting-planner h2, #runecrafting-planner h3, #runecrafting-planner p { margin-top:0; }
@@ -12,6 +12,13 @@
     #runecrafting-planner .rcp-muted { color:var(--rcp-muted); font-size:.92rem; }
     #runecrafting-planner .rcp-top { display:flex; gap:16px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; margin-bottom:20px; }
     #runecrafting-planner .rcp-button { border:1px solid #6d5bd0; background:var(--rcp-accent); color:white; border-radius:9px; padding:10px 14px; cursor:pointer; font:inherit; font-weight:650; }
+    /* Website-matched primary actions */
+    #runecrafting-planner #rcp-add-item,
+    #runecrafting-planner #rcp-open-review,
+    #runecrafting-planner #rcp-copy { background:#E96AA9; border-color:#E96AA9; color:#ffffff; }
+    #runecrafting-planner #rcp-add-item:not(:disabled):hover,
+    #runecrafting-planner #rcp-open-review:not(:disabled):hover,
+    #runecrafting-planner #rcp-copy:not(:disabled):hover { background:#f48fbd; border-color:#f48fbd; }
     #runecrafting-planner .rcp-button.secondary { background:transparent; border-color:var(--rcp-line); }
     #runecrafting-planner .rcp-button.danger { background:#7f1d1d; border-color:#991b1b; }
     #runecrafting-planner .rcp-controls { display:flex; gap:10px; flex-wrap:wrap; align-items:end; margin-bottom:18px; }
