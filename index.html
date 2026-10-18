@@ -264,8 +264,11 @@
   const isLevelled = e => !hasFixedRomanLevel(e) && e.source !== 'Mythical' && Number.isInteger(e.maxLevel) && e.maxLevel > 1;
 
   function addItem(type) {
-    state.items.push({id:state.nextId++, type:type || DATA.items[0], enchants:[], editingType:false});
+    if (!type || !DATA.items.includes(type)) return;
+    state.items.push({id:state.nextId++, type, enchants:[], editingType:false});
     render();
+    $('rcp-new-type').value = '';
+    $('rcp-add-item').disabled = true;
   }
   function addEnchant(itemId) {
     const item = state.items.find(i=>i.id===itemId);
@@ -276,7 +279,11 @@
     render();
   }
   function render() {
-    $('rcp-new-type').innerHTML = makeEquipmentOptions(DATA.items, $('rcp-new-type').value || DATA.items[0]);
+    const equipmentSelect = $('rcp-new-type');
+    const previousEquipment = equipmentSelect.value;
+    equipmentSelect.innerHTML = '<option value="">Choose equipment…</option>' + makeEquipmentOptions(DATA.items, previousEquipment);
+    equipmentSelect.value = DATA.items.includes(previousEquipment) ? previousEquipment : '';
+    $('rcp-add-item').disabled = !equipmentSelect.value;
     const container = $('rcp-items');
     if (!state.items.length) {
       container.innerHTML = '<p class="rcp-empty">No equipment added yet. Choose an equipment type above and click “Add equipment”.</p>';
@@ -353,6 +360,9 @@
     const used = runeNames.filter(r=>totals[r]>0);
     $('rcp-runes').innerHTML = used.length ? used.map(r=>`<div class="rcp-rune"><span>${esc(r)}</span><strong>${totals[r]}</strong></div>`).join('') : '<p class="rcp-empty">Add a rune-cost enchantment to see the rune totals. Free enchantments do not add to the total.</p>';
   }
+  $('rcp-new-type').addEventListener('change', () => {
+    $('rcp-add-item').disabled = !$('rcp-new-type').value;
+  });
   $('rcp-add-item').addEventListener('click',()=>addItem($('rcp-new-type').value));
   $('rcp-reset').addEventListener('click',()=>{state.items=[];state.nextId=1;render();});
   $('rcp-items').addEventListener('change',ev=>{
