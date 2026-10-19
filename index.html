@@ -16,10 +16,44 @@ const toolMeta={"planner": {"name": "Build Planner", "description": "Plan enchan
 const buttons=[...document.querySelectorAll('[data-tool]')];
 const loaded=new Set();
 function loadTool(key){if(loaded.has(key))return;const frame=document.getElementById('frame-'+key);frame.src=toolData[key];loaded.add(key);frame.addEventListener('load',()=>resizeFrame(frame));}
-function resizeFrame(frame){if(frame.hidden)return;try{const doc=frame.contentDocument;if(!doc)return;const height=Math.max(doc.body?.scrollHeight||0,doc.documentElement?.scrollHeight||0);if(height>200)frame.style.height=(height+28)+'px'}catch(e){}}
+function resizeFrame(frame){if(frame.hidden)return;try{const doc=frame.contentDocument;if(!doc)return;const height=Math.ceil(doc.body?.getBoundingClientRect().height||0);if(height>200)frame.style.height=(height+28)+'px'}catch(e){}}
 function activate(key,updateHash=true){if(!toolData[key])key='planner';buttons.forEach(b=>{const active=b.dataset.tool===key;b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1});document.querySelectorAll('.tool-frame').forEach(f=>f.hidden=f.id!=='frame-'+key);loadTool(key);resizeFrame(document.getElementById('frame-'+key));if(updateHash)history.replaceState(null,'','#'+key)}
 buttons.forEach(b=>b.addEventListener('click',()=>activate(b.dataset.tool)));
 window.addEventListener('hashchange',()=>activate(location.hash.slice(1),false));
 setInterval(()=>{const key=document.querySelector('.nav-btn[aria-selected="true"]')?.dataset.tool;if(key)resizeFrame(document.getElementById('frame-'+key))},900);
 activate(location.hash.slice(1)||'planner',false);
-</script></body></html>
+</script><!-- Squarespace embed auto-height -->
+<script>
+(function () {
+  'use strict';
+  if (window.parent === window) return;
+  const allowedParents = ['https://www.silverspringssurvival.com','https://silverspringssurvival.com'];
+  let lastHeight = 0, queued = false;
+  function publishHeight() {
+    queued = false;
+    // Body bounds can shrink; document.scrollHeight cannot shrink below the iframe viewport.
+    const height = Math.ceil(document.body.getBoundingClientRect().height);
+    if (!Number.isFinite(height) || height < 200 || height === lastHeight) return;
+    lastHeight = height;
+    allowedParents.forEach(origin => window.parent.postMessage({type:'sss-runecrafting-hub:resize',version:1,height},origin));
+  }
+  function schedule() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(publishHeight);
+  }
+  if (window.ResizeObserver) new ResizeObserver(schedule).observe(document.body);
+  window.addEventListener('resize',schedule);
+  window.addEventListener('load',schedule);
+  window.addEventListener('message',event => {
+    if (event.source === window.parent && allowedParents.includes(event.origin) && event.data?.type === 'sss-runecrafting-hub:request-height') {
+      lastHeight = 0;
+      schedule();
+    }
+  });
+  if (document.fonts?.ready) document.fonts.ready.then(schedule);
+  setInterval(schedule,900);
+  schedule();
+})();
+</script>
+</body></html>
