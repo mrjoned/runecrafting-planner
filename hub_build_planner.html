@@ -148,6 +148,20 @@ main,.wrap{max-width:none}main{padding:22px 20px 40px}body:has(>.wrap){padding:2
 #runecrafting-planner .rcp-item,#runecrafting-planner .rcp-summary,#runecrafting-planner .rcp-build-review{border-radius:14px}
 #runecrafting-planner .rcp-description{background:#11121b}#runecrafting-planner button:disabled{opacity:.5;cursor:not-allowed}
 @media(max-width:640px){#runecrafting-planner .rcp-shell{padding:0}}
+
+#runecrafting-planner .rcp-gem-panel{margin-top:20px;padding-top:18px;border-top:1px solid var(--rcp-line)}
+#runecrafting-planner .rcp-gem-panel h4{margin:0 0 5px;font-size:1rem;color:#ffb2d7}
+#runecrafting-planner .rcp-gem-slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+#runecrafting-planner .rcp-gem-slots select{width:100%;font-size:.88rem}
+#runecrafting-planner .rcp-armor-gems{border:1px solid var(--rcp-line);border-radius:10px;padding:12px;margin-top:14px}
+#runecrafting-planner .rcp-armor-gems summary{cursor:pointer;color:#c48aff;font-weight:700}
+#runecrafting-planner .rcp-armor-gems .rcp-gem-slots{margin-bottom:0}
+#runecrafting-planner .rcp-gem-effects{margin:8px 0;padding-left:20px;font-size:.87rem;color:var(--rcp-muted)}
+#runecrafting-planner .rcp-gem-summary{margin-top:20px;padding-top:16px;border-top:1px solid var(--rcp-line)}
+#runecrafting-planner .rcp-gem-summary h4{margin:0 0 6px}
+#runecrafting-planner .rcp-gem-total{display:flex;justify-content:space-between;gap:10px;border:1px solid var(--rcp-line);border-radius:9px;padding:10px;background:#171923}
+#runecrafting-planner .rcp-gem-summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:12px 0}
+@media(max-width:420px){#runecrafting-planner .rcp-gem-slots{grid-template-columns:1fr}}
 </style>
   <div class="rcp-shell">
     <div class="rcp-top">
@@ -167,15 +181,15 @@ main,.wrap{max-width:none}main{padding:22px 20px 40px}body:has(>.wrap){padding:2
     <div id="rcp-items" class="rcp-items"></div>
     <div class="rcp-review-actions"><button type="button" class="rcp-button" id="rcp-open-review" aria-expanded="false" aria-controls="rcp-build-review">View Build Summary</button></div>
     <section class="rcp-build-review" id="rcp-build-review" aria-label="Build summary" hidden>
-      <div class="rcp-build-review-head"><div><h3>Build Summary</h3><p class="rcp-muted">Your complete equipment setup, enchantment effects, and rune requirements.</p></div><button type="button" class="rcp-button secondary" id="rcp-close-review">Back to Planner</button></div>
+      <div class="rcp-build-review-head"><div><h3>Build Summary</h3><p class="rcp-muted">Your equipment, enchantments, gem bonuses, and crafting requirements.</p></div><button type="button" class="rcp-button secondary" id="rcp-close-review">Back to Planner</button></div>
       <div id="rcp-review-content"></div>
     </section>
     <section class="rcp-summary" aria-live="polite">
-      <h3>Rune shopping list</h3>
+      <h3>Rune &amp; gem shopping list</h3>
       <p class="rcp-muted" id="rcp-summary-note">Your totals update as you change your build.</p>
-      <div id="rcp-runes" class="rcp-runes"></div>
+      <div id="rcp-runes" class="rcp-runes"></div><div id="rcp-gem-totals" class="rcp-gem-summary"></div>
       <div class="rcp-actions">
-        <button class="rcp-button" type="button" id="rcp-copy">Copy rune list</button>
+        <button class="rcp-button" type="button" id="rcp-copy">Copy rune &amp; gem list</button>
       </div>
       <p class="rcp-small" id="rcp-copy-status" role="status"></p>
     </section>
@@ -233,8 +247,13 @@ main,.wrap{max-width:none}main{padding:22px 20px 40px}body:has(>.wrap){padding:2
   const groupConflict = (rule, other) => {
     const match = /^other\s+(.+)$/i.exec(rule.trim());
     if (!match) return false;
-    const singular = match[1].trim().replace(/ies$/i,'y').replace(/s$/i,'').toLowerCase();
-    return (other.category || '').toLowerCase() === singular || other.name.toLowerCase().startsWith(singular + ' ' + 'of ')
+    const group = match[1].trim().toLowerCase();
+    const category = (other.category || '').trim().toLowerCase();
+    // Compare plural forms with the actual category before reducing a word.
+    // Impetus -> Impetuses must not become the nonexistent 'Impetuse'.
+    if (category && [category, category+'s', category+'es', category.replace(/y$/, 'ies')].includes(group)) return true;
+    const singular = /uses$/.test(group) ? group.slice(0,-2) : group.replace(/ies$/,'y').replace(/s$/,'');
+    return category === singular || other.name.toLowerCase().startsWith(singular + ' ' + 'of ')
       || other.name.toLowerCase().startsWith(singular + ' ');
   };
   const namesConflict = (a, b) => {
@@ -299,9 +318,62 @@ main,.wrap{max-width:none}main{padding:22px 20px 40px}body:has(>.wrap){padding:2
   const maxFor = e => hasFixedRomanLevel(e) ? 1 : Number.isInteger(e.maxLevel) && e.maxLevel > 0 ? e.maxLevel : 1;
   const isLevelled = e => !hasFixedRomanLevel(e) && e.source !== 'Mythical' && Number.isInteger(e.maxLevel) && e.maxLevel > 1;
 
+
+  const ARMOR_CAPS = {Helmets:3,Chestplates:8,Leggings:6,Boots:3};
+  const GEMS = [
+    {name:'Agility',effect:'+5% movement speed'},
+    {name:'Haste',effect:'+5% attack speed'},
+    {name:'Tenacity',effect:'+10% knockback resistance; +5% stun resistance'},
+    {name:'Vigor',effect:'+1 Max Health (½ heart)'},
+    {name:'Favor',effect:'+0.25 Luck'},
+    {name:'Preservation',effect:'+1 armor'},
+    {name:'Fortitude',effect:'+2 armor toughness'}
+  ];
+  const STAT_GEMS = GEMS.slice(0,5);
+  const hasGemSockets = item => Object.hasOwn(ARMOR_CAPS,item.type);
+  function initGems(item) { item.gems=['','','','']; item.armorBase=''; item.toughnessBase=''; item.preservation=0; item.fortitude=0; item.armorGemsOpen=false; }
+  function armorRoom(item,kind) {
+    if (!hasGemSockets(item)) return 0;
+    const value=kind==='preservation'?item.armorBase:item.toughnessBase;
+    if (value==='' || value==null || !Number.isFinite(Number(value))) return 0;
+    const cap=kind==='preservation'?ARMOR_CAPS[item.type]:2;
+    return Math.max(0,Math.floor((cap-Number(value))/(kind==='preservation'?1:2)));
+  }
+  function gemCounts(items=state.items) {
+    const counts=Object.fromEntries(GEMS.map(g=>[g.name,0]));
+    items.filter(hasGemSockets).forEach(item=>{
+      (item.gems||[]).slice(0,4).forEach(name=>{if(STAT_GEMS.some(g=>g.name===name))counts[name]++;});
+      counts.Preservation+=Math.min(item.preservation||0,armorRoom(item,'preservation'));
+      counts.Fortitude+=Math.min(item.fortitude||0,armorRoom(item,'fortitude'));
+    });
+    return counts;
+  }
+  function gemEffects(counts) {
+    const effects=[];
+    if(counts.Agility)effects.push('+'+counts.Agility*5+'% movement speed');
+    if(counts.Haste)effects.push('+'+counts.Haste*5+'% attack speed');
+    if(counts.Tenacity)effects.push('+'+counts.Tenacity*10+'% knockback resistance; +'+counts.Tenacity*5+'% stun resistance');
+    if(counts.Vigor)effects.push('+'+counts.Vigor+' Max Health ('+counts.Vigor/2+' hearts)');
+    if(counts.Favor)effects.push('+'+counts.Favor*.25+' Luck');
+    if(counts.Preservation)effects.push('+'+counts.Preservation+' armor');
+    if(counts.Fortitude)effects.push('+'+counts.Fortitude*2+' armor toughness');
+    return effects;
+  }
+  function gemSummary(items=state.items,heading='Gem Requirements') {
+    const counts=gemCounts(items),used=GEMS.filter(g=>counts[g.name]);
+    return `<div class="rcp-gem-summary"><h4>${heading}</h4>${used.length?`<div class="rcp-gem-summary-grid">${used.map(g=>`<div class="rcp-gem-total"><span>${g.name}</span><strong>${counts[g.name]}</strong></div>`).join('')}</div><p class="rcp-small">Planned gem contributions${items.length>1?' across these pieces':''}; other equipment and enchantment bonuses are not included.</p><ul class="rcp-gem-effects">${gemEffects(counts).map(effect=>`<li>${effect}</li>`).join('')}</ul>`:'<p class="rcp-small">No gems planned.</p>'}</div>`;
+  }
+  function gemPanel(item) {
+    if (!hasGemSockets(item))return '';
+    const selected=(item.gems||[]).filter(Boolean).length;
+    const field=(action,label,value,max)=>`<div><label for="rcp-${action}-${item.id}">${label}</label><input type="number" id="rcp-${action}-${item.id}" data-action="${action}" data-item="${item.id}" min="0" max="${max}" step="1" value="${value}" placeholder="Enter current value"></div>`;
+    const quantity=(kind,name)=>`<div><label for="rcp-${kind}-${item.id}">${name} gems</label><select id="rcp-${kind}-${item.id}" data-action="${kind}" data-item="${item.id}" ${armorRoom(item,kind)?'':'disabled'}>${makeOptions(Array.from({length:armorRoom(item,kind)+1},(_,i)=>i),item[kind]||0)}</select></div>`;
+    return `<section class="rcp-gem-panel" aria-label="Gem socketing for ${esc(item.type)}"><h4>💎 Gem Socketing</h4><p class="rcp-small">${selected} / 4 stat sockets planned. Each stat gem uses one socket; repeat gems are allowed.</p><div class="rcp-gem-slots">${Array.from({length:4},(_,index)=>`<div><label for="rcp-gem-${item.id}-${index}">Socket ${index+1}</label><select id="rcp-gem-${item.id}-${index}" data-action="gem" data-item="${item.id}" data-index="${index}"><option value="">Empty socket</option>${STAT_GEMS.map(g=>`<option value="${g.name}" ${item.gems?.[index]===g.name?'selected':''}>${g.name} — ${g.effect}</option>`).join('')}</select></div>`).join('')}</div><details class="rcp-armor-gems" data-gem-item="${item.id}" ${item.armorGemsOpen?'open':''}><summary>Armor improvements (separate from sockets)</summary><p class="rcp-small">Preservation and Fortitude do not use stat sockets. Enter this piece’s current values before the planned gems. Upgrades stop at diamond quality: ${ARMOR_CAPS[item.type]} armor and 2 armor toughness for this piece.</p><div class="rcp-gem-slots">${field('armor-base','Current armor',item.armorBase,ARMOR_CAPS[item.type])}${field('toughness-base','Current armor toughness',item.toughnessBase,2)}${quantity('preservation','Preservation (+1 armor)')}${quantity('fortitude','Fortitude (+2 toughness)')}</div></details>${selected||item.preservation||item.fortitude?`<ul class="rcp-gem-effects">${gemEffects(gemCounts([item])).map(effect=>`<li>${effect}</li>`).join('')}</ul>`:''}<p class="rcp-small">This plans your desired setup. Removing existing gems in-game destroys them.</p></section>`;
+  }
+
   function addItem(type) {
     if (!type || !DATA.items.includes(type)) return;
-    state.items.push({id:state.nextId++, type, enchants:[], editingType:false});
+    const item={id:state.nextId++, type, enchants:[], editingType:false}; initGems(item); state.items.push(item);
     render();
     $('rcp-new-type').value = '';
     $('rcp-add-item').disabled = true;
@@ -341,9 +413,10 @@ main,.wrap{max-width:none}main{padding:22px 20px 40px}body:has(>.wrap){padding:2
         }).join('');
         return `<article class="rcp-item">
           <div class="rcp-item-head"><h3>${esc(item.type)}</h3><div class="rcp-head-actions"><button type="button" class="rcp-button secondary" data-action="toggle-type" data-item="${item.id}" aria-expanded="${!!item.editingType}">${item.editingType ? 'Cancel' : 'Change'}</button><button type="button" class="rcp-button danger" data-action="remove-item" data-item="${item.id}">Remove</button></div></div>
-          ${item.editingType ? `<div class="rcp-change-panel"><label for="rcp-change-${item.id}">Change equipment type</label><select id="rcp-change-${item.id}" data-action="type" data-item="${item.id}">${makeEquipmentOptions(DATA.items,item.type)}</select><p class="rcp-small">Changing equipment type clears enchantments on this piece.</p></div>` : ''}
+          ${item.editingType ? `<div class="rcp-change-panel"><label for="rcp-change-${item.id}">Change equipment type</label><select id="rcp-change-${item.id}" data-action="type" data-item="${item.id}">${makeEquipmentOptions(DATA.items,item.type)}</select><p class="rcp-small">Changing equipment type clears enchantments and planned gems on this piece.</p></div>` : ''}
           ${rows || '<p class="rcp-empty">No enchantments selected yet.</p>'}
           <button type="button" class="rcp-button secondary rcp-add-enchant" data-action="add-enchant" data-item="${item.id}" ${available.length===0?'disabled':''}>+ Add enchantment</button>
+          ${gemPanel(item)}
         </article>`;
       }).join('');
     }
@@ -366,11 +439,11 @@ main,.wrap{max-width:none}main{padding:22px 20px 40px}body:has(>.wrap){padding:2
       return `<article class="rcp-review-gear"><h4>${esc(item.type)}</h4>${enchants.length?enchants.map(({entry,e})=>{
         const suffix=hasFixedRomanLevel(e)||e.source==='Mythical'?'':` ${entry.level>1?'Level '+entry.level:'Level I'}`;
         return `<div class="rcp-review-enchant"><div class="rcp-review-enchant-title">${esc(e.name)}${esc(suffix)}</div><div class="rcp-small">${esc(categoryName(e))} · ${e.costMode==='free'?'No rune cost':'Runecrafted'}</div><div class="rcp-review-description">${formatDescription(e.description)}</div>${incompatibilityMarkup(e)}</div>`;
-      }).join(''):'<p class="rcp-muted">No enchantments selected for this equipment.</p>'}</article>`;
+      }).join(''):'<p class="rcp-muted">No enchantments selected for this equipment.</p>'}${hasGemSockets(item)?gemSummary([item],'Planned Gems'):''}</article>`;
     }).join('');
     const totals=buildRuneTotals();
     const used=runeNames.filter(r=>totals[r]>0);
-    $('rcp-review-content').innerHTML=state.items.length?`<p class="rcp-muted">${state.items.length} piece(s) of equipment · ${selected} enchantment(s)</p>${equipment}<h4 class="rcp-review-subtitle">Total Rune Requirements</h4>${used.length?`<div class="rcp-review-runes">${used.map(r=>`<span class="rcp-review-rune">${esc(r)}: <strong>${totals[r]}</strong></span>`).join('')}</div>`:'<p class="rcp-muted">No runes required for the selected enchantments.</p>'}`:'<p class="rcp-empty">Add equipment and enchantments to see your build summary.</p>';
+    $('rcp-review-content').innerHTML=state.items.length?`<p class="rcp-muted">${state.items.length} piece(s) of equipment · ${selected} enchantment(s)</p>${equipment}<h4 class="rcp-review-subtitle">Total Rune Requirements</h4>${used.length?`<div class="rcp-review-runes">${used.map(r=>`<span class="rcp-review-rune">${esc(r)}: <strong>${totals[r]}</strong></span>`).join('')}</div>`:'<p class="rcp-muted">No runes required for the selected enchantments.</p>'}${gemSummary()}`:'<p class="rcp-empty">Add equipment and enchantments to see your build summary.</p>';
   }
   function setReviewOpen(open) {
     state.reviewOpen=open;
@@ -393,6 +466,7 @@ main,.wrap{max-width:none}main{padding:22px 20px 40px}body:has(>.wrap){padding:2
       e.runes.forEach(r => { totals[r] = (totals[r] || 0) + runeMultiplier(e,entry); });
     }));
     $('rcp-summary-note').textContent = `${state.items.length} piece(s) of equipment · ${chosenCount} enchantment(s) selected · ${freeCount} with no rune cost`;
+    $('rcp-gem-totals').innerHTML=gemSummary();
     const used = runeNames.filter(r=>totals[r]>0);
     $('rcp-runes').innerHTML = used.length ? used.map(r=>`<div class="rcp-rune"><span>${esc(r)}</span><strong>${totals[r]}</strong></div>`).join('') : '<p class="rcp-empty">Add a rune-cost enchantment to see the rune totals. Free enchantments do not add to the total.</p>';
   }
@@ -401,12 +475,22 @@ main,.wrap{max-width:none}main{padding:22px 20px 40px}body:has(>.wrap){padding:2
   });
   $('rcp-add-item').addEventListener('click',()=>addItem($('rcp-new-type').value));
   $('rcp-reset').addEventListener('click',()=>{state.items=[];state.nextId=1;render();});
+  $('rcp-items').addEventListener('toggle',ev=>{ const id=ev.target.dataset?.gemItem; const item=state.items.find(i=>i.id===Number(id)); if(item)item.armorGemsOpen=ev.target.open; },true);
   $('rcp-items').addEventListener('change',ev=>{
-    const el=ev.target, action=el.dataset.action, itemId=Number(el.dataset.item);
+    const el=ev.target, action=el.dataset.action, itemId=Number(el.dataset.item); const focusId=el.id;
     const item=state.items.find(i=>i.id===itemId);
     if (!item) return;
     if (action==='type') {
-      if (el.value !== item.type) { item.type=el.value; item.enchants=[]; } item.editingType=false; render();
+      if (el.value !== item.type && DATA.items.includes(el.value)) { item.type=el.value; item.enchants=[]; initGems(item); } item.editingType=false; render();
+    } else if (action==='gem' && hasGemSockets(item)) {
+      const index=Number(el.dataset.index);
+      if (Number.isInteger(index)&&index>=0&&index<4&&(el.value===''||STAT_GEMS.some(g=>g.name===el.value))) { item.gems[index]=el.value; render(); }
+    } else if ((action==='armor-base'||action==='toughness-base') && hasGemSockets(item)) {
+      const key=action==='armor-base'?'armorBase':'toughnessBase',cap=action==='armor-base'?ARMOR_CAPS[item.type]:2;
+      const n=Number(el.value);item[key]=el.value===''||!Number.isFinite(n)?'':Math.max(0,Math.min(cap,n));
+      item.preservation=Math.min(item.preservation,armorRoom(item,'preservation'));item.fortitude=Math.min(item.fortitude,armorRoom(item,'fortitude'));item.armorGemsOpen=true;render();
+    } else if ((action==='preservation'||action==='fortitude') && hasGemSockets(item)) {
+      item[action]=Math.max(0,Math.min(armorRoom(item,action),Math.floor(Number(el.value)||0)));item.armorGemsOpen=true;render();
     } else if (action==='enchant') {
       const entry=item.enchants[Number(el.dataset.index)];
       if (entry && (el.value === '' || suggestions(item,Number(el.dataset.index)).some(e=>e.name===el.value))) { entry.name=el.value; entry.level=1; entry.showDescription=false; render(); }
@@ -414,6 +498,7 @@ main,.wrap{max-width:none}main{padding:22px 20px 40px}body:has(>.wrap){padding:2
       const entry=item.enchants[Number(el.dataset.index)];
       if (entry) { entry.level=Number(el.value); render(); }
     }
+    if(focusId && $(focusId))$(focusId).focus({preventScroll:true});
   });
   $('rcp-items').addEventListener('click',ev=>{
     const el=ev.target.closest('[data-action]');
@@ -435,17 +520,19 @@ main,.wrap{max-width:none}main{padding:22px 20px 40px}body:has(>.wrap){padding:2
       if (e.costMode === 'free') { free.push(e.name); return; }
       e.runes.forEach(r=>totals[r]=(totals[r]||0)+runeMultiplier(e,entry));
     }));
-    const lines=['Runecrafting rune shopping list',...runeNames.filter(r=>totals[r]>0).map(r=>`${r}: ${totals[r]}`)];
+    const lines=['Runecrafting rune & gem shopping list',...runeNames.filter(r=>totals[r]>0).map(r=>`${r}: ${totals[r]}`)];
     if (free.length) lines.push('', 'No rune cost: ' + free.join(', '));
+    const gems=gemCounts();lines.push('','Gems',...GEMS.filter(g=>gems[g.name]).map(g=>`${g.name}: ${gems[g.name]}`));
+    if (!Object.values(gems).some(Boolean))lines.push('No gems planned.');
     const text=lines.join('\n');
     const status=$('rcp-copy-status');
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(()=>status.textContent='Rune list copied!').catch(()=>fallbackCopy(text,status));
+      navigator.clipboard.writeText(text).then(()=>status.textContent='Rune & gem list copied!').catch(()=>fallbackCopy(text,status));
     } else fallbackCopy(text,status);
   });
   function fallbackCopy(text,status) {
     const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select();
-    try { document.execCommand('copy'); status.textContent='Rune list copied!'; } catch(e) { status.textContent='Copy was blocked by your browser. You can select and copy the totals manually.'; }
+    try { document.execCommand('copy'); status.textContent='Rune & gem list copied!'; } catch(e) { status.textContent='Copy was blocked by your browser. You can select and copy the totals manually.'; }
     ta.remove();
   }
   render();
@@ -454,6 +541,8 @@ main,.wrap{max-width:none}main{padding:22px 20px 40px}body:has(>.wrap){padding:2
     .then(live => {
       if (!Array.isArray(live.enchantments) || !Array.isArray(live.items)) throw new Error('Unexpected data');
       DATA = live;
+      enchantByName.clear();
+      DATA.enchantments.forEach(e=>enchantByName.set(e.name.toLowerCase(),e));
       state.items.forEach(item => { item.enchants = item.enchants.filter(entry => !entry.name || DATA.enchantments.some(e => e.name===entry.name && e.items.includes(item.type))); });
       render();
       console.info('Runecrafting Planner: live Airtable data loaded');
